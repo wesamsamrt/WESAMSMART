@@ -1,0 +1,14 @@
+.instructions-link{border:0;background:transparent;color:var(--green);padding:8px 0;font-size:13px;font-weight:600;white-space:nowrap}
+.instructions-dialog{width:min(520px,calc(100% - 28px));max-height:calc(100% - 32px);padding:0;border:1px solid var(--line);border-radius:20px;color:var(--ink);box-shadow:0 20px 80px #102a4038}
+.instructions-dialog::backdrop{background:#102a4088;backdrop-filter:blur(3px)}
+.instructions-content{padding:clamp(22px,5vw,32px);overflow:auto}
+.instructions-content h2{margin:6px 0;font-size:25px}
+.instructions-intro{margin:0;color:#718397;font-size:13px}
+.instructions-content ol{display:grid;gap:12px;margin:19px 0;padding-right:24px;color:#31516d;font-size:13px;line-height:1.8}
+.instructions-content li::marker{color:var(--green);font-weight:700}
+.instructions-price{padding:13px 15px;border-radius:12px;background:var(--cream);font-size:12px;line-height:1.8}
+.instructions-price p{margin:4px 0 0;color:#60758a}
+.instructions-payment{margin-top:10px;padding:11px 14px;border:1px solid #dbe9f3;border-radius:11px;color:#47667f;font-size:11px;line-height:1.7}
+.instructions-remember{display:flex;align-items:center;gap:8px;margin:16px 0;color:#718397;font-size:11px;cursor:pointer}
+.instructions-remember input{width:16px;height:16px;accent-color:var(--green)}
+@media(max-width:700px){.instructions-link{font-size:11px}.instructions-content h2{font-size:22px}.instructions-content ol{font-size:12px}}

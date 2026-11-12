@@ -11,4 +11,7 @@
 .instructions-payment{margin-top:10px;padding:11px 14px;border:1px solid #dbe9f3;border-radius:11px;color:#47667f;font-size:11px;line-height:1.7}
 .instructions-remember{display:flex;align-items:center;gap:8px;margin:16px 0;color:#718397;font-size:11px;cursor:pointer}
 .instructions-remember input{width:16px;height:16px;accent-color:var(--green)}
+.whatsapp-order-button{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:46px;margin-top:9px;padding:10px 14px;border:0;border-radius:12px;background:#25d366;color:#073b20;font-size:13px;font-weight:700}
+.whatsapp-order-button:hover{background:#1fbd5a}
+.whatsapp-order-button span{font-size:19px;line-height:1}
 @media(max-width:700px){.instructions-link{font-size:11px}.instructions-content h2{font-size:22px}.instructions-content ol{font-size:12px}}

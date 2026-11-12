@@ -188,3 +188,77 @@ body .form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 body .form-grid label{min-width:0}
 body .form-grid input,body .form-grid textarea{width:100%;min-width:0;max-width:100%}
 @media (max-width:820px){body .form-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* ===== Fix: page wider than the phone screen (category chips were stretching the toolbar) ===== */
+body{overflow-x:hidden}
+body .toolbar{grid-template-columns:minmax(0,1fr)}
+body .filter-row,body .category-list,body .search-box{min-width:0}
+
+/* ===== Mobile: same layout as desktop, everything scaled down ===== */
+@media (max-width:820px){
+  body .topbar{height:56px;padding:0 10px;gap:6px}
+  body .brand{gap:6px;min-width:0}
+  body .brand-mark{width:30px;height:30px;border-radius:9px;font-size:1rem}
+  body .brand strong{font-size:12px}
+  body .brand small{display:block;font-size:7.5px}
+  body .header-actions{gap:5px}
+  body .instructions-link,body .contact-link{display:inline-block;padding:5px 9px;font-size:10px;white-space:nowrap}
+  body .cart-button{height:28px;min-width:0;gap:5px;padding:0 9px;font-size:10px}
+  body .cart-button b{min-width:17px;height:17px;font-size:9px}
+
+  body .hero{grid-template-columns:1.15fr .85fr;gap:14px;padding:26px 14px 0;min-height:0}
+  body .hero-copy{max-width:none}
+  body .hero-copy .eyebrow{margin-bottom:8px;padding:2px 8px;font-size:8px}
+  body .hero h1{margin:0 0 8px;font-size:21px;line-height:1.25}
+  body .hero p{margin:0 0 12px;font-size:9.5px;line-height:1.6}
+  body .hero-cta{gap:6px;padding:7px 15px;font-size:10px}
+  body .slip{width:100%;padding:9px 10px 14px;transform:rotate(-2.5deg);-webkit-mask-size:8px 100%;mask-size:8px 100%}
+  body .slip-head{padding-bottom:5px;border-bottom-width:1.5px}
+  body .slip-head b{font-size:9px}
+  body .slip-head span{font-size:7px}
+  body .slip ul{margin:4px 0}
+  body .slip li{gap:6px;padding:4px 0;font-size:7.5px;line-height:1.5}
+  body .slip-foot{padding:4px 5px;border-radius:5px;font-size:6.5px}
+  body .hero-bottom{gap:6px 14px;margin-top:20px;padding:10px 0;font-size:8px}
+  body .hero-bottom span{gap:5px}
+  body .hero-bottom i{width:5px;height:5px}
+
+  body .catalog{padding:24px 14px 30px}
+  body .section-heading{margin-bottom:12px}
+  body .section-heading h2{font-size:18px}
+  body .section-heading .eyebrow{font-size:9px}
+  body .result-count{font-size:9px}
+  body .toolbar{top:56px;gap:8px;padding:8px;margin-bottom:14px;border-radius:14px}
+  body .search-box{height:36px;padding:0 10px;gap:6px}
+  body .search-box span{font-size:16px}
+  body .search-box input{height:34px}
+  body .filter-row{flex-direction:row;align-items:center;gap:6px}
+  body .category-list{width:auto;flex:1;gap:5px}
+  body .category-chip{padding:4px 11px;font-size:10px}
+  body #sort{align-self:center;padding:4px 6px;font-size:11px!important;height:28px}
+
+  body .product-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  body .product-card{border-radius:10px}
+  body .product-image{height:105px}
+  body .product-category{top:4px;right:4px;padding:1px 5px;font-size:6.5px}
+  body .model-count{bottom:4px;right:4px;padding:1px 6px;font-size:6.5px}
+  body .product-content{padding:6px}
+  body .product-title{min-height:0;margin:0 0 3px;font-size:8.5px;line-height:1.4}
+  body .product-meta{min-height:0;gap:1px 5px;font-size:6.5px}
+  body .product-bottom{flex-wrap:wrap;gap:4px;margin-top:5px;padding-top:5px}
+  body .price{font-size:9px}
+  body .price small{display:none}
+  body .view-models{padding:2px 6px;gap:3px;font-size:6.5px}
+  body .view-models b{display:none}
+  body .load-more{margin-top:16px;padding:8px 22px;font-size:11px}
+
+  body .contact-strip{flex-wrap:nowrap;margin:0 14px 24px;padding:16px;gap:10px}
+  body .contact-strip h2{font-size:14px}
+  body .contact-strip p{font-size:9px}
+  body .contact-strip .eyebrow{font-size:8px}
+  body .contact-button{padding:8px 14px;font-size:10px;white-space:nowrap}
+  body footer{flex-wrap:nowrap;gap:8px;padding:14px;font-size:8px}
+  body footer .brand-mark{width:26px;height:26px;font-size:.85rem}
+  body footer .brand strong{font-size:10px}
+  body footer .brand small{display:none}
+}

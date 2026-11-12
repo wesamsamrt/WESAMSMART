@@ -11,3 +11,7 @@
 
 
 .brand-shared-note{display:block;color:#75879a;font-size:10px;line-height:1.7;margin-top:8px}
+
+.brand-tools{display:flex;flex-wrap:wrap;gap:8px}.brand-tools .add-brand-button{margin-top:10px}.brand-entry-actions,.saved-product-actions{display:flex;flex-wrap:wrap;gap:7px;align-items:center}.brand-entry-actions .secondary-button,.saved-product-actions .secondary-button{min-height:36px;margin:0;padding:0 10px;font:inherit;font-size:10px}.saved-product-actions{margin-top:10px}.saved-product-actions .edit-product{margin:0}
+.product-image-upload{display:grid;gap:7px;margin-top:10px;color:#58748b;font-size:11px;font-weight:600}.product-image-upload input{min-height:42px;border:1px dashed #98b6cf;border-radius:10px;padding:9px;background:#f8fbfe;color:#315f82;font:inherit;font-size:11px}.product-image-upload small{font-size:10px;color:#8192a1;font-weight:400}
+

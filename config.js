@@ -5,7 +5,7 @@ window.SHOP_CONFIG = {
   supabasePublishableKey: "sb_publishable_MDsqQx4MolvOhQntOXoxzg_GK-ffgKO",
   companyName: "Wesam Smart",
   contactPhone: "",
-  storageBucket: "",
+  storageBucket: "product-images",
   warehouse: "الرياض",
   pageSize: 24
 };

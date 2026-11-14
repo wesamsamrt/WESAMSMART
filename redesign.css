@@ -179,6 +179,11 @@ body .color-choice.selected b{color:var(--sticker)}
 body .detail-quantity{border-radius:var(--r-md);border-color:var(--line)}
 body .detail-quantity button{border-radius:50%;background:var(--bg);color:var(--navy)}
 body .detail-actions .primary-button{border-radius:var(--r-md)}
+body .quantity-presets{margin:10px 0 14px}
+body .quantity-preset-options{display:flex;flex-wrap:wrap;gap:8px}
+body .quantity-preset{min-width:64px;height:38px;padding:0 14px;border:1px solid var(--line);border-radius:var(--r-md);background:#fff;color:var(--navy);font:inherit;font-weight:600;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+body .quantity-preset:hover{border-color:var(--blue);background:#F1F7FC}
+body .quantity-preset.selected{border-color:var(--blue);background:var(--blue);color:#fff}
 body .other-brand-card{border-radius:var(--r-md)}
 body .other-brand-card:hover{border-color:var(--blue)}
 

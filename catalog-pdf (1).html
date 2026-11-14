@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>كتالوج Wesam Smart</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+:root{--navy:#0B2742;--blue:#1769AA;--sky:#9CC8EE;--sticker:#FFC93C;--bg:#F2F6FA;--line:#D3DFEB;--ink:#13202E;--muted:#5B6B7C}
+*{box-sizing:border-box}
+html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{margin:0;background:#dfe6ee;color:var(--ink);font-family:"IBM Plex Sans Arabic",system-ui,sans-serif}
+[hidden]{display:none!important}
+
+/* شريط التحكم (لا يُطبع) */
+.bar{position:sticky;top:0;z-index:10;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:12px 18px;background:#fff;border-bottom:1px solid var(--line)}
+.bar b{color:var(--navy)}
+.bar small{display:block;color:var(--muted)}
+.bar button{padding:11px 26px;border:0;border-radius:999px;background:var(--navy);color:#fff;font:inherit;font-weight:700;cursor:pointer}
+.bar button:disabled{background:#9aa9b8;cursor:wait}
+.msg{max-width:760px;margin:24px auto;padding:14px 18px;border-radius:12px;background:#FFF4D1;color:#6B4E00}
+
+/* الصفحات */
+.sheet{width:210mm;margin:16px auto;background:#fff;box-shadow:0 6px 24px rgba(11,39,66,.18)}
+.cover{position:relative;z-index:2;display:flex;flex-direction:column;justify-content:space-between;width:210mm;height:297mm;padding:22mm 20mm;background:var(--navy);color:#fff;overflow:hidden;break-after:page}
+.cover::before{content:"";position:absolute;inset:0;background:radial-gradient(70% 55% at 100% 0%,rgba(23,105,170,.6),transparent 70%)}
+.cover>*{position:relative}
+.cover .mark{display:grid;place-items:center;width:20mm;height:20mm;border-radius:5mm;background:#fff;color:var(--navy);font-size:12mm;font-weight:700}
+.cover h1{margin:0 0 6mm;font-size:22mm;line-height:1.1}
+.cover .rule{width:30mm;height:2mm;margin-bottom:7mm;background:var(--sticker)}
+.cover p{margin:0;font-size:5.2mm;color:#C9DAEA}
+.cover .meta{display:flex;justify-content:space-between;padding-top:6mm;border-top:.3mm solid rgba(255,255,255,.25);font-size:4mm;color:var(--sky)}
+
+.body{padding:0 2mm}
+.cat{margin:0 0 8mm}
+.cat-head{display:flex;align-items:center;justify-content:space-between;margin:0 0 4mm;padding:3mm 5mm;border-radius:2.5mm;background:var(--navy);color:#fff;break-after:avoid}
+.cat-head h2{margin:0;font-size:5.5mm}
+.cat-head span{padding:.8mm 3mm;border-radius:99px;background:var(--sticker);color:var(--navy);font-size:3.4mm;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4mm}
+.card{break-inside:avoid;border:.3mm solid var(--line);border-radius:3mm;overflow:hidden;background:#fff}
+.pic{display:grid;place-items:center;aspect-ratio:1;background:#fff;border-bottom:.3mm solid var(--bg)}
+.pic img{display:block;width:100%;height:100%;object-fit:contain;padding:2mm}
+.pic i{font-style:normal;font-size:10mm;color:var(--sky)}
+.info{padding:2.4mm 2.6mm 3mm}
+.name{min-height:9mm;margin:0 0 2mm;font-size:3.5mm;line-height:1.45;font-weight:600;color:var(--navy);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.code{display:inline-block;padding:.7mm 2.4mm;border-radius:99px;background:var(--navy);color:var(--sticker);font-size:3.2mm;font-weight:700;letter-spacing:.2mm}
+.foot{position:fixed;left:0;right:0;bottom:4mm;text-align:center;font-size:3mm;color:var(--muted);display:none}
+
+@page{size:A4;margin:12mm 10mm 14mm}
+@page:first{margin:0}
+@media print{
+  body{background:#fff}
+  .bar,.msg{display:none!important}
+  .sheet{width:auto;margin:0;box-shadow:none}
+  .cover{margin:0}
+  .foot{display:block;z-index:0}
+}
+</style>
+</head>
+<body>
+<div class="bar" id="bar">
+  <div><b id="status">جارٍ تحميل المنتجات...</b><small id="sub">يتم جلب البيانات من نفس قاعدة بيانات الموقع</small></div>
+  <button id="print" type="button" disabled>حفظ كـ PDF</button>
+</div>
+<div class="msg" id="tip">عند الضغط على الزر: اختر الوجهة «حفظ كـ PDF»، وفعّل خيار «رسومات الخلفية» (Background graphics) حتى تظهر الألوان.</div>
+<div class="msg" id="error" hidden></div>
+
+<div class="sheet" id="sheet" hidden>
+  <section class="cover">
+    <div class="mark">W</div>
+    <div>
+      <h1>كتالوج<br>المنتجات</h1>
+      <div class="rule"></div>
+      <p>Wesam Smart — إكسسوارات الجوالات للمحلات</p>
+    </div>
+    <div class="meta"><span id="cover-count"></span><span id="cover-date"></span></div>
+  </section>
+  <div class="body" id="body"></div>
+</div>
+<div class="foot">Wesam Smart · كتالوج المنتجات</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(async()=>{
+  const $=id=>document.getElementById(id);
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fail=m=>{$('status').textContent='تعذّر إنشاء الكتالوج';$('error').textContent=m;$('error').hidden=false;$('tip').hidden=true};
+  const loadScript=src=>new Promise(r=>{const el=document.createElement('script');el.src=src;el.onload=()=>r(true);el.onerror=()=>r(false);document.head.appendChild(el)});
+  // أولاً config.js المجاور للصفحة، وإن لم يوجد نستخدم نسخة الموقع المنشور
+  await loadScript('config.js');
+  if(!window.SHOP_CONFIG?.supabaseUrl) await loadScript('https://wesamsamrt.github.io/WESAMSMART/config.js');
+  const cfg=window.SHOP_CONFIG||{};
+  if(!cfg.supabaseUrl) return fail('لم أجد إعدادات الاتصال (config.js). ارفع هذه الصفحة في نفس مجلد index.html وافتحها من رابط الموقع.');
+  const client=window.supabase?.createClient(cfg.supabaseUrl,cfg.supabasePublishableKey);
+  if(!client) return fail('تعذّر الاتصال بقاعدة البيانات. تأكد أن ملف config.js موجود بجانب هذه الصفحة.');
+
+  const imageUrl=raw=>{
+    if(!raw) return '';
+    const s=String(raw).trim();
+    if(/^https?:\/\//i.test(s)||s.startsWith('data:image/')) return s;
+    const m=s.match(/(?:storage\/v1\/object\/public\/)([^/]+)\/(.+)$/);
+    const bucket=m?.[1]||cfg.storageBucket, path=m?.[2]||s.replace(/^\/+/,'');
+    return bucket?client.storage.from(bucket).getPublicUrl(path).data.publicUrl:'';
+  };
+
+  // جلب كل المنتجات الفعّالة على دفعات
+  let rows=[],from=0;const STEP=1000;
+  while(true){
+    const {data,error}=await client.from('store_products').select('id,category,type,company,product_code,image,created_at').eq('is_active',true).order('created_at',{ascending:false}).range(from,from+STEP-1);
+    if(error) return fail('تعذّر تحميل المنتجات: '+error.message);
+    rows=rows.concat(data||[]);
+    if(!data||data.length<STEP) break;
+    from+=STEP;
+  }
+  if(!rows.length) return fail('لا توجد منتجات فعّالة لعرضها.');
+
+  // نفس طريقة تجميع الموقع: المنتج بالكود + الماركة (الموديلات تُدمج في كرت واحد)
+  const map=new Map();
+  for(const p of rows){
+    const key=p.product_code?`${String(p.product_code).trim()}\u0000${String(p.company||'').trim().toLowerCase()}`:`id:${p.id}`;
+    if(!map.has(key)) map.set(key,{code:p.product_code||'',category:p.category||'غير مصنف',name:p.type||(p.product_code?`صنف ${p.product_code}`:'منتج إكسسوارات'),image:''});
+    const g=map.get(key); if(!g.image){const u=imageUrl(p.image); if(u) g.image=u;}
+  }
+  const groups=[...map.values()];
+  const cats=new Map();
+  for(const g of groups){ if(!cats.has(g.category)) cats.set(g.category,[]); cats.get(g.category).push(g); }
+  const sortedCats=[...cats.keys()].sort((a,b)=>a.localeCompare(b,'ar'));
+
+  $('body').innerHTML=sortedCats.map(c=>{
+    const list=cats.get(c).sort((a,b)=>String(a.code).localeCompare(String(b.code),'en',{numeric:true}));
+    return `<section class="cat"><div class="cat-head"><h2>${esc(c)}</h2><span>${list.length} منتج</span></div><div class="grid">`+
+      list.map(g=>`<div class="card"><div class="pic">${g.image?`<img src="${esc(g.image)}" alt="" loading="eager" />`:'<i>▧</i>'}</div><div class="info"><h3 class="name">${esc(g.name)}</h3>${g.code?`<span class="code"><bdi dir="ltr">${esc(g.code)}</bdi></span>`:''}</div></div>`).join('')+
+      `</div></section>`;
+  }).join('');
+  $('cover-count').textContent=`${groups.length} منتج في ${sortedCats.length} تصنيف`;
+  $('cover-date').textContent=new Date().toLocaleDateString('ar-SA-u-ca-gregory',{year:'numeric',month:'long'});
+  $('sheet').hidden=false;
+
+  // انتظار الخط والصور قبل تفعيل الزر
+  const imgs=[...document.querySelectorAll('.pic img')];let done=0;
+  const tick=()=>{done++;$('status').textContent=`جارٍ تحميل الصور ${done} / ${imgs.length}`};
+  $('status').textContent=`جارٍ تحميل الصور 0 / ${imgs.length}`;
+  await Promise.all([document.fonts.ready,...imgs.map(im=>new Promise(r=>{
+    const end=()=>{tick();r()};
+    if(im.complete){end()}else{im.onload=end;im.onerror=()=>{im.replaceWith(Object.assign(document.createElement('i'),{textContent:'▧'}));end()}}
+  }))]);
+  $('status').textContent=`الكتالوج جاهز: ${groups.length} منتج`;
+  $('sub').textContent='اضغط «حفظ كـ PDF» ثم احفظ الملف.';
+  $('print').disabled=false;
+  $('print').onclick=()=>window.print();
+})().catch(e=>{document.getElementById('error').textContent='حدث خطأ: '+e.message;document.getElementById('error').hidden=false});
+</script>
+</body>
+</html>

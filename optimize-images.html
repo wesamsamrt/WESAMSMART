@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>تخفيف صور المنتجات | Wesam Smart</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet" />
+<style>
+body{margin:0;background:#F2F6FA;color:#13202E;font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;line-height:1.7}
+main{max-width:680px;margin:0 auto;padding:32px 18px}
+h1{margin:0 0 6px;color:#0B2742}
+p{margin:0 0 14px;color:#5B6B7C}
+button{padding:13px 30px;border:0;border-radius:999px;background:#0B2742;color:#fff;font:inherit;font-weight:700;cursor:pointer}
+button:disabled{background:#9aa9b8;cursor:wait}
+.bar{height:12px;margin:18px 0 8px;border-radius:99px;background:#D3DFEB;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:#1769AA;transition:width .2s}
+#status{font-weight:600;color:#0B2742}
+#log{margin-top:14px;padding:12px 16px;border-radius:12px;background:#fff;border:1px solid #D3DFEB;font-size:.9rem;max-height:240px;overflow:auto;white-space:pre-wrap}
+a.dl{display:inline-block;margin-top:16px;padding:13px 30px;border-radius:999px;background:#FFC93C;color:#0B2742;font-weight:700;text-decoration:none}
+ol{color:#5B6B7C;padding-inline-start:1.3em}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+  <h1>تخفيف صور المنتجات</h1>
+  <p>الصور محفوظة داخل جدول المنتجات نفسه بأحجام كبيرة، وهذا سبب التعليق. هذه الأداة تقرأ كل صورة (منتج منتج حتى لا ينتهي وقت الاستعلام)، وتصغّرها إلى ملفات خفيفة، وتجهّز لك ملف SQL يربط كل منتج بصورته الجديدة.</p>
+  <p><b>الأداة لا تعدّل أي شيء في قاعدة بياناتك</b>، فقط تقرأ وتنزّل ملف ZIP.</p>
+  <button id="go" type="button">ابدأ</button>
+  <div class="bar"><i id="fill"></i></div>
+  <div id="status">جاهز</div>
+  <a id="dl" class="dl" hidden>تنزيل optimized.zip</a>
+  <div id="log" hidden></div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const log=m=>{$('log').hidden=false;$('log').textContent+=m+'\n';$('log').scrollTop=1e9};
+const loadScript=src=>new Promise(r=>{const el=document.createElement('script');el.src=src;el.onload=()=>r(true);el.onerror=()=>r(false);document.head.appendChild(el)});
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const MAX_SIDE=800;
+
+$('go').onclick=async()=>{
+  $('go').disabled=true;$('dl').hidden=true;$('log').textContent='';$('fill').style.width='0';
+  try{
+    await loadScript('config.js');
+    if(!window.SHOP_CONFIG?.supabaseUrl) await loadScript('https://wesamsamrt.github.io/WESAMSMART/config.js');
+    const cfg=window.SHOP_CONFIG||{};
+    if(!cfg.supabaseUrl) throw new Error('لم أجد config.js. ارفع هذه الصفحة بجانب index.html وافتحها من رابط الموقع.');
+    const client=window.supabase.createClient(cfg.supabaseUrl,cfg.supabasePublishableKey);
+
+    // 1) قائمة المعرفات فقط (خفيفة)
+    $('status').textContent='جارٍ قراءة قائمة المنتجات...';
+    let ids=[],from=0;
+    while(true){
+      const {data,error}=await client.from('store_products').select('id').order('id').range(from,from+999);
+      if(error) throw new Error(error.message);
+      ids=ids.concat((data||[]).map(r=>r.id));
+      if(!data||data.length<1000) break;
+      from+=1000;
+    }
+    log(`عدد المنتجات: ${ids.length}`);
+
+    const zip=new JSZip(),files=[];
+    let done=0,before=0,after=0,skipped=0,failed=0;
+
+    const shrink=async blob=>{
+      const bmp=await createImageBitmap(blob);
+      const k=Math.min(1,MAX_SIDE/Math.max(bmp.width,bmp.height));
+      const c=document.createElement('canvas');c.width=Math.round(bmp.width*k);c.height=Math.round(bmp.height*k);
+      const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(bmp,0,0,c.width,c.height);
+      const out=await new Promise(r=>c.toBlob(r,'image/webp',.82));
+      if(!out||out.type!=='image/webp') throw new Error('متصفحك لا يدعم WebP، استخدم Chrome أو Edge');
+      return out;
+    };
+
+    const readImage=async id=>{
+      for(let t=1;t<=4;t++){
+        const {data,error}=await client.from('store_products').select('id,image').eq('id',id).maybeSingle();
+        if(!error) return data?.image||'';
+        if(t===4) throw new Error(error.message);
+        await sleep(1500*t);
+      }
+    };
+
+    const work=async id=>{
+      try{
+        const img=await readImage(id);
+        if(!img||!img.startsWith('data:image/')){skipped++;return}
+        before+=img.length;
+        const blob=await (await fetch(img)).blob();
+        const out=await shrink(blob);
+        const name=`p-${id}.webp`;
+        zip.file(name,out);files.push({id,name});after+=out.size;
+      }catch(e){failed++;log(`تعذّر المنتج ${id}: ${e.message}`)}
+      finally{done++;$('fill').style.width=Math.round(done/ids.length*100)+'%';$('status').textContent=`معالجة ${done} / ${ids.length}`}
+    };
+
+    const q=[...ids];
+    await Promise.all(Array.from({length:3},async()=>{while(q.length) await work(q.shift())}));
+
+    // 2) ملف SQL: نسخة احتياطية للصورة الأصلية ثم الربط بالملفات الجديدة
+    const esc=s=>String(s).replace(/'/g,"''");
+    let sql=`-- 1) نسخة احتياطية من الصور الأصلية (لا تُستخدم في الموقع)\n`+
+`alter table public.store_products add column if not exists image_backup text;\n`+
+`update public.store_products set image_backup = image where image_backup is null and image like 'data:image%';\n\n`+
+`-- 2) ربط كل منتج بصورته الجديدة (بعد رفع الملفات إلى الـ bucket)\n`+
+files.map(f=>`update public.store_products set image = '${esc(f.name)}' where id::text = '${esc(f.id)}';`).join('\n')+'\n';
+    zip.file('update-images.sql',sql);
+
+    $('status').textContent='جارٍ تجهيز الملف...';
+    const blob=await zip.generateAsync({type:'blob',compression:'STORE'});
+    $('dl').href=URL.createObjectURL(blob);$('dl').download='optimized.zip';$('dl').hidden=false;
+    const mb=n=>(n/1048576).toFixed(1);
+    $('status').textContent=`تم: ${files.length} صورة. الحجم من ${mb(before)} MB إلى ${mb(after)} MB`;
+    log(`تجاهلت ${skipped} منتج (بدون صورة أو صورته رابط خارجي أصلاً)، وفشل ${failed}.`);
+    log('الخطوة التالية: فك الضغط، ارفع ملفات .webp إلى الـ bucket في Storage، ثم شغّل update-images.sql.');
+  }catch(e){$('status').textContent='تعذّر التنفيذ';log(e.message)}
+  $('go').disabled=false;
+};
+</script>
+</body>
+</html>
